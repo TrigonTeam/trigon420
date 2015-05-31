@@ -1,19 +1,4 @@
 # Trigon420
 
-A library for Dart developers. It is awesome.
-
-## Usage
-
-A simple usage example:
-
-    import 'package:Trigon420/Trigon420.dart';
-
-    main() {
-      var awesome = new Awesome();
-    }
-
-## Features and bugs
-
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: http://example.com/issues/replaceme
+Absolutely simple Dart 2D "framework" without any texture support or anything. Uses software rendering.
+You are probably not going to need something like this, but you can use it, it's up to you! 
