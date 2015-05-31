@@ -7,7 +7,10 @@ class Renderer {
   Renderer(this.canvas);
 
   void clear(int color) {
-
+    int back = this.color;
+    this.color = color;
+    this.fillRect(0, 0, this.canvas.__width, this.canvas.__height);
+    this.color = back;
   }
 
   void drawPixel(int x, int y) {
@@ -27,7 +30,10 @@ class Renderer {
   void fillRectVec(Vector2 pos0, Vector2 pos1) => this.fillRect(pos0.x, pos0.y, pos1.x, pos1.y);
 
   void drawRect(int x0, int y0, int x1, int y1) {
-
+    this.__drawVLine(y0, y1, x0);
+    this.__drawVLine(y0, y1, x1);
+    this.__drawHLine(x0, x1, y0);
+    this.__drawHLine(x0, x1, y1);
   }
 
   void drawRectVec(Vector2 pos0, Vector2 pos1) => this.drawRect(pos0.x, pos0.y, pos1.x, pos1.y);
