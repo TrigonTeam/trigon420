@@ -7,11 +7,16 @@ class GameCanvas {
   int __width, __height;
   double __tickTime = 1000000 / 30;
   List<int> __pixels = new List<int>();
+  Input __input;
+  Renderer __render;
 
   RenderingContext context;
-  Input input;
+
   Function output;
   Renderable renderable;
+
+  Renderer get renderer => this.__render;
+  Input get input => this.__input;
 
   bool get isCrashed => this.__crashed;
 
@@ -35,7 +40,8 @@ class GameCanvas {
       this.crash("WebGL error", message: "NoWebGL4u");
     }
 
-    this.input = new Input();
+    this.__input = new Input();
+    this.__render = new Renderer(this);
   }
 
   void loop() {
@@ -71,7 +77,7 @@ class GameCanvas {
   }
 
   void __clearBuffer() {
-    //TODO
+    this.__render.clear(0xFFFFFF);
   }
 
   void __flipBuffer() {
