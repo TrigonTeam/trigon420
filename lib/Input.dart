@@ -18,8 +18,8 @@ class Input {
   Vector2 get mouse => new Vector2(__mouseX, __mouseY);
 
   Input() {
-    this.keysDown = new List<bool>();
-    this.mouseDown = new List<bool>();
+    this.keysDown = []; //new List<bool>();
+    this.mouseDown = []; //new List<bool>();
 
     window.onKeyDown.listen((e) => this.keysDown[e.keyCode] = true);
     window.onKeyUp.listen((e) => this.keysDown[e.keyCode] = false);

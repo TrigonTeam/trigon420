@@ -4,8 +4,13 @@ import 'package:Trigon420/Trigon420.dart';
 
 main() {
   GameCanvas c = new GameCanvas("game", 500, 500);
-  c.renderable = new CustomRenderable(c);
-  c.loop();
+
+  try {
+    c.renderable = new CustomRenderable(c);
+    c.loop();
+  } catch (e, stack) {
+    c.crash("Crash", message: e/*, stackTrace: stack*/);
+  }
 }
 
 class CustomRenderable extends Renderable {

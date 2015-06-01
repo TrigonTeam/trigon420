@@ -9,4 +9,5 @@ part "Input.dart";
 part "Vector2.dart";
 part "Renderable.dart";
 part "Renderer.dart";
+part "Gl.dart";
 

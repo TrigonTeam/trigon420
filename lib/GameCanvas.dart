@@ -6,7 +6,7 @@ class GameCanvas {
   int __tps = 30;
   int __width, __height;
   double __tickTime = 1000000 / 30;
-  List<int> __pixels = new List<int>();
+  List<int> __pixels;
   Input __input;
   Renderer __render;
 
@@ -35,6 +35,7 @@ class GameCanvas {
     this.__width = width;
     this.__height = height;
 
+    this.__pixels = [];
     this.context = this.__canvasHtml.getContext3d();
     if (this.context == null) {
       this.crash("WebGL error", message: "NoWebGL4u");
@@ -52,7 +53,7 @@ class GameCanvas {
     var lastTime = time;
     int ticks = 0;
 
-    while(true) {
+    while(!window.closed) {
       time = w.elapsedMicroseconds;
 
       while(time - lastTime >= this.__tickTime) {
@@ -81,6 +82,7 @@ class GameCanvas {
   }
 
   void __flipBuffer() {
+    print("flip");
     //TODO
   }
 
