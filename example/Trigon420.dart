@@ -3,7 +3,7 @@ library Trigon420.example;
 import 'package:Trigon420/Trigon420.dart';
 
 main() {
-  GameCanvas c = new GameCanvas("game", 500, 500);
+  GameCanvas c = new GameCanvas("game", 100, 100, 5);
 
   try {
     c.renderable = new CustomRenderable(c);

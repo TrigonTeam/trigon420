@@ -3,8 +3,14 @@ part of Trigon420;
 class Gl {
   GameCanvas game;
   RenderingContext gl;
+  GlRenderer glr;
   Shader vs, fs;
   Program prog;
+  Texture tex;
+
+  HashMap<String, UniformLocation> uniforms =
+      new HashMap<String, UniformLocation>();
+  HashMap<String, int> attribs = new HashMap<String, int>();
 
   Gl(this.game) {
     this.gl = this.game.context;
@@ -32,29 +38,24 @@ class Gl {
   }
 
   void loadDefaultShader() {
-    var shaders =
-    loadShaders(
-    '''
-in vec2 in_vertex;
-in vec4 in_color;
-in vec2 in_tex;
+    var shaders = loadShaders('''
+attribute vec2 in_vertex;
+attribute vec4 in_color;
+attribute vec2 in_tex;
 
-out vec4 color;
-out vec2 tex;
+varying vec4 color;
+varying vec2 tex;
 
 void main()
 {
     gl_Position = vec4(in_vertex, 0.0, 1.0);
 
     color = in_color;
-    tex = in_tex
+    tex = in_tex;
 }
-    ''',
-
-    '''
-in vec4 color;
-in vec2 tex;
-
+    ''', '''
+varying vec4 color;
+varying vec2 tex;
 uniform sampler2D sampler;
 
 void main(void)
@@ -69,9 +70,67 @@ void main(void)
     this.prog = createProgram(this.vs, this.fs);
     this.gl.linkProgram(this.prog);
     this.gl.useProgram(this.prog);
+    this.loadUniforms();
+    this.loadAttribs();
+  }
+
+  void loadUniforms() {
+    final int numUniforms = this.gl.getProgramParameter(
+        this.prog, RenderingContext.ACTIVE_UNIFORMS);
+    for (var i = 0; i < numUniforms; i++) {
+      var uniform = this.gl.getActiveUniform(this.prog, i);
+      String name = uniform.name;
+      this.uniforms[name] = this.gl.getUniformLocation(this.prog, name);
+    }
+  }
+
+  void loadAttribs() {
+    final int numAttributes = this.gl.getProgramParameter(
+        this.prog, RenderingContext.ACTIVE_ATTRIBUTES);
+    for (var i = 0; i < numAttributes; i++) {
+      var attribute = this.gl.getActiveAttrib(this.prog, i);
+      this.attribs[attribute.name] = i;
+    }
+  }
+
+  void uniform1f(String name, double d) {
+    this.gl.uniform1f(this.uniforms[name], d);
+  }
+
+  void uniform2f(String name, Vector2 v) {
+    this.gl.uniform2f(this.uniforms[name], v.x, v.y);
+  }
+
+  void bindVertexData(String name, int length, int offs, int floatsPerVertex) {
+    if (attribs.containsKey(name)) {
+      int location = this.attribs[name];
+      gl.enableVertexAttribArray(location);
+      gl.vertexAttribPointer(location, length, FLOAT, false,
+          floatsPerVertex * Renderer.BYTES_PER_FLOAT,
+          offs * Renderer.BYTES_PER_FLOAT);
+    }
   }
 
   void init() {
+    this.loadDefaultShader();
     this.gl.viewport(0, 0, this.game.__width, this.game.__height);
+    this.glr = new GlRenderer(this);
+    this.glr.bindShaderAttribs();
+    this.glr.staticDraw = true;
+    this.createTexture();
+  }
+
+  void createTexture() {
+    this.tex = this.gl.createTexture();
+    this.gl.bindTexture(TEXTURE_2D, this.tex);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, NONE);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, NONE);
+  }
+
+  void flushTexture() {
+    Int32List l = new Int32List(this.game.__pixels);
+    this.gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, l);
   }
 }
