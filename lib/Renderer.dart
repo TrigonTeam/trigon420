@@ -49,8 +49,6 @@ class Renderer {
     }
   }
 
-  void fillRect(Rectangle rect) => this.fillRectVec(rect.pos1, rect.pos2);
-
   void fillRectVec(Vector2 pos0, Vector2 pos1) => this.fillRectXy(pos0.x, pos0.y, pos1.x, pos1.y);
 
   void drawRectXy(num x0, num y0, num x1, num y1) {
@@ -59,8 +57,6 @@ class Renderer {
     this.__drawHLine(x0, x1, y0);
     this.__drawHLine(x0, x1, y1);
   }
-
-  void drawRect(Rectangle rect) => this.drawRectVec(rect.pos1, rect.pos2);
 
   void drawRectVec(Vector2 pos0, Vector2 pos1) => this.drawRectXy(pos0.x, pos0.y, pos1.x, pos1.y);
 

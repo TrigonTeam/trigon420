@@ -14,8 +14,8 @@ class Input {
   int get mouseX => __mouseX;
   int get mouseY => __mouseY;
 
-  Vector2 get wheelDelta => new Vector2(__wheelX, __wheelY);
-  Vector2 get mouse => new Vector2(__mouseX, __mouseY);
+  Vector2 get wheelDelta => new Vector2(__wheelX.toDouble(), __wheelY.toDouble());
+  Vector2 get mouse => new Vector2(__mouseX.toDouble(), __mouseY.toDouble());
 
   Input() {/*
     this.keysDown = []; //new List<bool>();

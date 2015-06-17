@@ -90,16 +90,18 @@ class GameCanvas {
     window.requestAnimationFrame(update);
   }
 
+  num lastTick = 0;
+  
   void update(double t) {
     time = w.elapsedMicroseconds;
 
-    while (time - lastTime >= this.__tickTime) {
+    while (time - lastTime >= this.__tickTime) {    
       this.tick(ticks++);
       lastTime += this.__tickTime;
     }
 
     this.__clearBuffer();
-    this.renderTick((time - lastTime) / this.__tickTime);
+    this.renderTick((time - lastTime) / this.__tickTime);  
     this.__flipBuffer();
 
     if(time - this.lastInfo >= 1000000) {

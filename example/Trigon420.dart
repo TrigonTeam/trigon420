@@ -1,6 +1,7 @@
 library Trigon420.example;
 
 import 'package:Trigon420/Trigon420.dart';
+import 'package:vector_math/vector_math.dart';
 import 'dart:math' hide Rectangle;
 import 'dart:collection';
 
@@ -20,7 +21,7 @@ class CustomRenderable extends Renderable {
 
   CustomRenderable(this.canvas);
 
-  LinkedHashSet<Rectangle> snow = new LinkedHashSet<Rectangle>();
+  HashMap<Vector2, int> snow = new HashMap<Vector2, int>();
   Random rnd = new Random();
   double speed = 2.0;
 
@@ -28,40 +29,39 @@ class CustomRenderable extends Renderable {
   void tick(int ticks) {
     for (int i = 0; i < 2; i++) {
       int w = 6 + rnd.nextInt(2);
-      Rectangle r = Rectangle.xywh(rnd.nextInt(canvas.gameWidth), -w * 2, w, w);
-      this.snow.add(r);
+      Vector2 v = new Vector2(rnd.nextInt(canvas.gameWidth).toDouble(), -w * 2.0);
+      this.snow[v] = w;
     }
 
     for (int i = 0; i < 4; i++) {
       int w = 4 + rnd.nextInt(2);
-      Rectangle r = Rectangle.xywh(rnd.nextInt(canvas.gameWidth), -w * 2, w, w);
-      this.snow.add(r);
+      Vector2 v = new Vector2(rnd.nextInt(canvas.gameWidth).toDouble(), -w * 2.0);
+      this.snow[v] = w;
     }
 
     for (int i = 0; i < 8 + rnd.nextInt(12); i++) {
       int w = 2 + rnd.nextInt(2);
-      Rectangle r = Rectangle.xywh(rnd.nextInt(canvas.gameWidth), -w * 2, w, w);
-      this.snow.add(r);
+      Vector2 v = new Vector2(rnd.nextInt(canvas.gameWidth).toDouble(), -w * 2.0);
+      this.snow[v] = w;
     }
 
     for (int i = 0; i < 18 + rnd.nextInt(12); i++) {
       int w = 1 + rnd.nextInt(2);
-      Rectangle r = Rectangle.xywh(rnd.nextInt(canvas.gameWidth), -w * 2, w, w);
-      this.snow.add(r);
+      Vector2 v = new Vector2(rnd.nextInt(canvas.gameWidth).toDouble(), -w * 2.0);
+      this.snow[v] = w;
     }
 
-    var list = new LinkedHashMap();
+    var list = [];
 
-    this.snow.forEach((r) {
-      num size = r.size.x;
-      Rectangle nr = Rectangle.xywh(r.pos1.x, r.pos1.y + this.speed + size * 0.5, size, size);
+    this.snow.forEach((k, v) {
+      k.setValues(k.x, k.y + this.speed + v * 0.5);
 
-      if(nr.pos2.y < canvas.gameHeight) {
-        list.add(nr);
+      if(k.y > canvas.gameHeight) {
+        list.add(k);
       }
     });
 
-    this.snow = list;
+    list.forEach((k) => this.snow.remove(k));
   }
 
   @override
@@ -69,9 +69,9 @@ class CustomRenderable extends Renderable {
     this.canvas.renderer.clear(0xB0B0B0FF);
     this.canvas.renderer.color = 0xFFFFFFFF;
 
-    this.snow.forEach((r) {
-      double cY = (this.speed + r.size.x * 0.5) * ptt;
-      this.canvas.renderer.fillRectXy(r.pos1.x, r.pos1.y + cY, r.pos2.x, r.pos2.y + cY);
+    this.snow.forEach((k, v) {
+      double cY = (this.speed + v * 0.5) * ptt;
+      this.canvas.renderer.fillRectXy(k.x, k.y + cY, k.x + v, k.y + cY + v);
     });
 
   }
