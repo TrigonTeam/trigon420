@@ -73,5 +73,11 @@ class CustomRenderable extends Renderable {
       double cY = (this.speed + v * 0.5) * ptt;
       this.canvas.renderer.fillRectXy(k.x, k.y + cY, k.x + v, k.y + cY + v);
     });
+
+    this.canvas.renderer.color = 0xFF000088;
+    this.canvas.renderer.fillRectXy(0, 0, 100, 100);
+
+    this.canvas.renderer.color = 0xABCDEFCC;
+    this.canvas.renderer.fillRectXy(0, 0, 50, 50);
   }
 }

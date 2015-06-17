@@ -31,10 +31,25 @@ class Renderer {
       if (this.canvas.isWebgl) {
         this.canvas.__pixels[y * this.canvas.__width + x] = this.color;
       } else {
-        this.canvas.__pixels[4 * (y * this.canvas.__width + x)] = this.colorR;
-        this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] = this.colorG;
-        this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] = this.colorB;
-        this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = this.colorA;
+        if(this.colorA == 255) {
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x)] = this.colorR;
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] = this.colorG;
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] = this.colorB;
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = 255;
+        } else {
+          double alpha = (this.colorA / 255.0);
+
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x)] =
+          (alpha * this.colorR + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x)]).toInt();
+
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] =
+          (alpha * this.colorG + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1]).toInt();
+
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] =
+          (alpha * this.colorB + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2]).toInt();
+
+          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = 255;
+        }
       }
     }
   }
