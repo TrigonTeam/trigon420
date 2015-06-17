@@ -84,18 +84,45 @@ class Renderer {
   }
 
   void __drawOtherLine(num x0, num y0, num x1, num y1) {
-    num deltaX = x1 - x0;
-    num deltaY = y1 - y0;
-    num error = 0;
-    num deltaE = (deltaY / deltaX).abs();
-    num y = y0;
-    for (num x = x0; x <= x1; x++) {
-      this.drawPixel(x, y);
-      error += deltaE;
-      while (error >= 0.5) {
-        this.drawPixel(x, y);
-        y += (y1 - y0);
-        error -= 1.0;
+    x0 = x0.toInt();
+    x1 = x1.toInt();
+    y0 = y0.toInt();
+    y1 = y1.toInt();
+
+    int d = 0;
+
+    int dy = (y1 - y0).abs();
+    int dx = (x1 - x0).abs();
+
+    int dy2 = (dy << 1); // slope scaling factors to avoid floating
+    int dx2 = (dx << 1); // point
+
+    int ix = x0 < x1 ? 1 : -1; // increment direction
+    int iy = y0 < y1 ? 1 : -1;
+
+    if (dy <= dx) {
+      for (;;) {
+        this.drawPixel(x0, y0);
+        if (x0 == x1)
+          break;
+        x0 += ix;
+        d += dy2;
+        if (d > dx) {
+          y0 += iy;
+          d -= dx2;
+        }
+      }
+    } else {
+      for (;;) {
+        this.drawPixel(x1, y1);
+        if (y0 == y1)
+          break;
+        y0 += iy;
+        d += dx2;
+        if (d > dy) {
+          x0 += ix;
+          d -= dy2;
+        }
       }
     }
   }
