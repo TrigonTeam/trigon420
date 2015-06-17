@@ -6,7 +6,7 @@ import 'dart:math' hide Rectangle;
 import 'dart:collection';
 
 main() {
-  GameCanvas c = new GameCanvas("game", 500, 500, 1);
+  GameCanvas c = new GameCanvas("game", 640, 360, 1);
 
   //try {
     c.renderable = new CustomRenderable(c);
