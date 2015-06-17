@@ -3,7 +3,7 @@ part of Trigon420;
 class GameCanvas {
   CanvasElement __canvasHtml;
   bool __crashed = false;
-  int __tps = 30;
+  int __tps = 20;
   int __width, __height, __scale;
   int __widthScaled, __heightScaled;
 
@@ -74,7 +74,7 @@ class GameCanvas {
     this.__render = new Renderer(this);
   }
 
-  var time, lastTime, ticks;
+  num time, lastTime, ticks;
   Stopwatch w;
 
   void loop() {
