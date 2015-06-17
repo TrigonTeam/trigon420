@@ -17,7 +17,7 @@ class Input {
   Vector2 get wheelDelta => new Vector2(__wheelX, __wheelY);
   Vector2 get mouse => new Vector2(__mouseX, __mouseY);
 
-  Input() {
+  Input() {/*
     this.keysDown = []; //new List<bool>();
     this.mouseDown = []; //new List<bool>();
 
@@ -32,6 +32,6 @@ class Input {
     window.onMouseMove.listen((e) {
       __mouseX = e.movement.x;
       __mouseY = e.movement.y;
-    });
+    });*/
   }
 }

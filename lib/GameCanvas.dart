@@ -5,6 +5,7 @@ class GameCanvas {
   bool __crashed = false;
   int __tps = 30;
   int __width, __height, __scale;
+  int __widthScaled, __heightScaled;
 
   double __tickTime = 1000000 / 30;
   List<int> __pixels;
@@ -12,105 +13,115 @@ class GameCanvas {
   Renderer __render;
 
   RenderingContext context;
+  CanvasRenderingContext2D context2d;
   Gl glu;
+  CanvasRenderer cr;
 
   Function output;
   Renderable renderable;
 
   Renderer get renderer => this.__render;
+
   Input get input => this.__input;
 
   bool get isCrashed => this.__crashed;
 
   int get tps => this.__tps;
 
+  int get gameWidth => this.__width;
+
+  int get gameHeight => this.__height;
+
+  int get canvasWidth => this.__widthScaled;
+
+  int get canvasHeight => this.__heightScaled;
+
+  bool get isWebgl => (this.context != null);
+
   set tps(i) {
     this.__tps = i;
     this.__tickTime = 1000000 / i;
   }
 
-
-  GameCanvas(String canvasName, int width, int height, int scale) {
+  GameCanvas(String canvasName, int width, int height, int scale, [bool useGl = false]) {
     this.__canvasHtml = querySelector("#${canvasName}");
     this.__canvasHtml.setAttribute("width", "${width * scale}px");
     this.__canvasHtml.setAttribute("height", "${height * scale}px");
+
     this.__width = width;
     this.__height = height;
     this.__scale = scale;
+    this.__widthScaled = width * scale;
+    this.__heightScaled = height * scale;
 
-    this.__pixels = [];
-    this.context = this.__canvasHtml.getContext3d();
-    if (this.context == null) {
-      this.crash("WebGL error", message: "NoWebGL4u");
+    if (useGl) {
+      this.context = this.__canvasHtml.getContext3d();
+
+      if (this.context == null) {
+        this.crash("WebGL error", "NoWebGL4u");
+      }
+
+      this.glu = new Gl(this);
+    }
+    else {
+      this.context2d = this.__canvasHtml.getContext("2d");
+      this.cr = new CanvasRenderer(this);
     }
 
+    this.__pixels = new List<int>(width * height * (this.isWebgl ? 1 : 4));
+    
     this.__input = new Input();
-    this.glu = new Gl(this);
     this.__render = new Renderer(this);
   }
 
+  var time, lastTime, ticks;
+  Stopwatch w;
+
   void loop() {
-    Stopwatch w = new Stopwatch();
-    w.start();
+    this.w = new Stopwatch();
+    this.w.start();
 
-    this.glu.init();
 
-    this.glu.glr.vertex(1.0, 0.0);
-    this.glu.glr.texCoord(1.0, 0.0);
-    this.glu.glr.vertex(0.0, 0.0);
-    this.glu.glr.texCoord(0.0, 0.0);
-    this.glu.glr.vertex(0.0, 1.0);
-    this.glu.glr.texCoord(0.0, 1.0);
+    this.time = w.elapsedMicroseconds;
+    this.lastTime = time;
+    this.ticks = 0;
 
-    this.glu.glr.vertex(0.0, 1.0);
-    this.glu.glr.texCoord(0.0, 1.0);
-    this.glu.glr.vertex(1.0, 1.0);
-    this.glu.glr.texCoord(1.0, 1.0);
-    this.glu.glr.vertex(1.0, 0.0);
-    this.glu.glr.texCoord(1.0, 0.0);
+    window.requestAnimationFrame(update);
+  }
 
-    this.glu.glr.upload();
-    this.glu.glr.clear();
+  void update(double t) {
+    time = w.elapsedMicroseconds;
 
-    var time = w.elapsedMicroseconds;
-    var lastTime = time;
-    int ticks = 0;
-
-    while(!window.closed) {
-      time = w.elapsedMicroseconds;
-
-      while(time - lastTime >= this.__tickTime) {
-        this.tick(ticks++);
-        lastTime += this.__tickTime;
-      }
-
-      this.__clearBuffer();
-      this.renderTick((time - lastTime) / this.__tickTime);
-      this.__flipBuffer();
+    while (time - lastTime >= this.__tickTime) {
+      this.tick(ticks++);
+      lastTime += this.__tickTime;
     }
+
+    this.__clearBuffer();
+    this.renderTick((time - lastTime) / this.__tickTime);
+    this.__flipBuffer();
+
+    window.requestAnimationFrame(update);
   }
 
   void tick(int ticks) {
-    if(this.renderable != null)
-      this.renderable.tick(ticks);
+    if (this.renderable != null) this.renderable.tick(ticks);
   }
 
   void renderTick(double ptt) {
-    if(this.renderable != null)
-      this.renderable.renderTick(ptt);
+    if (this.renderable != null) this.renderable.renderTick(ptt);
   }
 
   void __clearBuffer() {
-    this.__render.clear(0xFFFFFF);
+    this.__render.clear(0xFFFFFFFF);
   }
 
   void __flipBuffer() {
-    this.glu.flushTexture();
-    this.glu.glr.render();
+    this.cr.flip();
   }
 
-  void crash(String title, {String message, var stackTrace}) {
-    String err = "Error - ${title}\n${message}\n" + (stackTrace == null ? "" : stackTrace);
+  void crash(String title, String message) {
+    String err = "Error - ${title}\n${message}";
 
     if (this.output == null) {
       window.alert(err);

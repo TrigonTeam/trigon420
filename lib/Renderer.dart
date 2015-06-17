@@ -2,19 +2,31 @@ part of Trigon420;
 
 class Renderer {
   GameCanvas canvas;
+
   int color;
+  int get colorR => (this.color >> 24) & 0x000000FF;
+  int get colorG => (this.color >> 16) & 0x000000FF;
+  int get colorB => (this.color >> 8) & 0x000000FF;
+  int get colorA => (this.color) & 0x000000FF;
 
   Renderer(this.canvas);
 
   void clear(int color) {
     int back = this.color;
     this.color = color;
-    this.fillRect(0, 0, this.canvas.__width, this.canvas.__height);
+    this.fillRect(0, 0, this.canvas.__width - 1, this.canvas.__height - 1);
     this.color = back;
   }
 
   void drawPixel(int x, int y) {
-    this.canvas.__pixels[y * this.canvas.__width + x] = this.color;
+    if(this.canvas.isWebgl) {
+      this.canvas.__pixels[y * this.canvas.__width + x] = this.color;
+    } else {
+      this.canvas.__pixels[4 * (y * this.canvas.__width + x)] = this.colorR;
+      this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] = this.colorG;
+      this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] = this.colorB;
+      this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = this.colorA;
+    }
   }
 
   void drawPixelVec(Vector2 pos) => this.drawPixel(pos.x, pos.y);

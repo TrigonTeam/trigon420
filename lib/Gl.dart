@@ -7,18 +7,20 @@ class Gl {
   Shader vs, fs;
   Program prog;
   Texture tex;
-
+  Int32List l;
+  
   HashMap<String, UniformLocation> uniforms =
       new HashMap<String, UniformLocation>();
   HashMap<String, int> attribs = new HashMap<String, int>();
 
   Gl(this.game) {
     this.gl = this.game.context;
+    this.l = new Int32List(this.game.__width * this.game.__height);
   }
 
   List<Shader> loadShaders(String vs, String fs) {
     Shader vso, fso;
-
+    
     vso = this.gl.createShader(VERTEX_SHADER);
     fso = this.gl.createShader(FRAGMENT_SHADER);
     this.gl.shaderSource(vso, vs);
@@ -106,8 +108,8 @@ void main(void)
       int location = this.attribs[name];
       gl.enableVertexAttribArray(location);
       gl.vertexAttribPointer(location, length, FLOAT, false,
-          floatsPerVertex * Renderer.BYTES_PER_FLOAT,
-          offs * Renderer.BYTES_PER_FLOAT);
+          floatsPerVertex * GlRenderer.BYTES_PER_FLOAT,
+          offs * GlRenderer.BYTES_PER_FLOAT);
     }
   }
 
@@ -125,12 +127,14 @@ void main(void)
     this.gl.bindTexture(TEXTURE_2D, this.tex);
     this.gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
     this.gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, NONE);
-    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, NONE);
+    /*this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, NONE);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, NONE);*/
   }
-
+  
   void flushTexture() {
-    Int32List l = new Int32List(this.game.__pixels);
-    this.gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, l);
+    //l = new Int32List(this.game.__width * this.game.__height);
+    l.setAll(0, this.game.__pixels);
+    //this.gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, l);
+    this.gl.texImage2DTyped(TEXTURE_2D, 0, RGBA, this.game.__width, this.game.__height, 0, RGBA, UNSIGNED_BYTE, this.l);
   }
 }
