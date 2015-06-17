@@ -74,7 +74,7 @@ class GameCanvas {
     this.__render = new Renderer(this);
   }
 
-  num time, lastTime, ticks;
+  num time, lastTime, ticks, frames = 1, lastInfo;
   Stopwatch w;
 
   void loop() {
@@ -84,6 +84,7 @@ class GameCanvas {
 
     this.time = w.elapsedMicroseconds;
     this.lastTime = time;
+    this.lastInfo = time;
     this.ticks = 0;
 
     window.requestAnimationFrame(update);
@@ -101,7 +102,14 @@ class GameCanvas {
     this.renderTick((time - lastTime) / this.__tickTime);
     this.__flipBuffer();
 
+    if(time - this.lastInfo >= 1000000) {
+      print("FPS: $frames");
+      this.lastInfo = time;
+      this.frames = 0;
+    }
+    
     window.requestAnimationFrame(update);
+    this.frames++;
   }
 
   void tick(int ticks) {

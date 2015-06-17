@@ -1,7 +1,8 @@
 library Trigon420.example;
 
 import 'package:Trigon420/Trigon420.dart';
-import 'dart:math';
+import 'dart:math' hide Rectangle;
+import 'dart:collection';
 
 main() {
   GameCanvas c = new GameCanvas("game", 500, 500, 1);
@@ -18,8 +19,8 @@ class CustomRenderable extends Renderable {
   GameCanvas canvas;
 
   CustomRenderable(this.canvas);
-  
-  List<Rectangle> snow = new List<Rectangle>();
+
+  LinkedHashSet<Rectangle> snow = new LinkedHashSet<Rectangle>();
   Random rnd = new Random();
   double speed = 2.0;
 
@@ -49,7 +50,7 @@ class CustomRenderable extends Renderable {
       this.snow.add(r);
     }
 
-    var list = [];
+    var list = new LinkedHashMap();
 
     this.snow.forEach((r) {
       num size = r.size.x;
