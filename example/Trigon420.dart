@@ -6,7 +6,7 @@ import 'dart:math' hide Rectangle;
 import 'dart:collection';
 
 main() {
-  GameCanvas c = new GameCanvas("game", 640, 360, 1);
+  GameCanvas c = new GameCanvas("game", 480, 270, 1);
 
   //try {
     c.renderable = new CustomRenderable(c);
@@ -21,7 +21,7 @@ class CustomRenderable extends Renderable {
 
   CustomRenderable(this.canvas);
 
-  HashMap<Vector2, int> snow = new HashMap<Vector2, int>();
+  LinkedHashMap<Vector2, int> snow = new LinkedHashMap<Vector2, int>();
   Random rnd = new Random();
   double speed = 2.0;
 
