@@ -19,7 +19,7 @@ class CanvasRenderer {
 
   void flip() {
     this.__render.clearRect(0, 0, this.__game.canvasWidth, this.__game.canvasHeight);
-    this.d.data.setAll(0, this.__game.__pixels);
+    this.d.data.setAll(0, this.__game.__bitmap.pixels);
 
     if (this.__scale) {
       this.scaleImageData();

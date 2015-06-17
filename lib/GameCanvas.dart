@@ -8,7 +8,7 @@ class GameCanvas {
   int __widthScaled, __heightScaled;
 
   double __tickTime = 1000000 / 30;
-  List<int> __pixels;
+  Bitmap __bitmap;
   Input __input;
   Renderer __render;
 
@@ -68,7 +68,7 @@ class GameCanvas {
       this.cr = new CanvasRenderer(this);
     }
 
-    this.__pixels = new List<int>(width * height * (this.isWebgl ? 1 : 4));
+    this.__bitmap = new Bitmap(width, height, !this.isWebgl);
     
     this.__input = new Input();
     this.__render = new Renderer(this);

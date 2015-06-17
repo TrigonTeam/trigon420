@@ -3,6 +3,8 @@ part of Trigon420;
 class Renderer {
   GameCanvas canvas;
 
+  Bitmap bitmap;
+
   int color;
 
   int get colorR => (this.color >> 24) & 0x000000FF;
@@ -13,7 +15,13 @@ class Renderer {
 
   int get colorA => (this.color) & 0x000000FF;
 
-  Renderer(this.canvas);
+  Renderer(this.canvas) {
+    this.useScreen();
+  }
+
+  void useScreen() {
+    this.bitmap = this.canvas.__bitmap;
+  }
 
   void clear(int color) {
     int back = this.color;
@@ -22,33 +30,24 @@ class Renderer {
     this.color = back;
   }
 
-  void drawPixel(num x, num y) {
+  void drawPixel(num x, num y, [int color = -1]) {
     x = x.toInt();
     y = y.toInt();
     
-    if (x >= 0 && x < this.canvas.gameWidth && y >= 0 && y < this.canvas.gameHeight) {
-      
-      if (this.canvas.isWebgl) {
-        this.canvas.__pixels[y * this.canvas.__width + x] = this.color;
-      } else {
-        if(this.colorA == 255) {
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x)] = this.colorR;
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] = this.colorG;
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] = this.colorB;
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = 255;
-        } else {
-          double alpha = (this.colorA / 255.0);
+    if (x >= 0 && x < this.bitmap.width && y >= 0 && y < this.bitmap.height) {
+      this.bitmap.setPixel(x, y, color == -1 ? this.color : color, true);
+    }
+  }
 
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x)] =
-          (alpha * this.colorR + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x)]).toInt();
+  void drawBitmap(int x, int y, Bitmap bitmap) {
+    for (int bx = 0; bx < bitmap.width; bx++) {
+      for (int by = 0; by < bitmap.height; by++) {
 
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1] =
-          (alpha * this.colorG + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 1]).toInt();
+        int px = bitmap.getPixel(bx, by);
 
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2] =
-          (alpha * this.colorB + (1 - alpha) * this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 2]).toInt();
+        if ((px & 0xFF) != 0) {
 
-          this.canvas.__pixels[4 * (y * this.canvas.__width + x) + 3] = 255;
+          this.drawPixel(bx + x, by + y, bitmap.getPixel(bx, by));
         }
       }
     }

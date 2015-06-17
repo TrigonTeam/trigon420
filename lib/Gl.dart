@@ -133,7 +133,7 @@ void main(void)
   
   void flushTexture() {
     //l = new Int32List(this.game.__width * this.game.__height);
-    l.setAll(0, this.game.__pixels);
+    l.setAll(0, this.game.__bitmap.pixels);
     //this.gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, l);
     this.gl.texImage2DTyped(TEXTURE_2D, 0, RGBA, this.game.__width, this.game.__height, 0, RGBA, UNSIGNED_BYTE, this.l);
   }
