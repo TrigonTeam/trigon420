@@ -30,27 +30,18 @@ class CanvasRenderer {
   }
 
   void scaleImageData() {
-    var scale = this.__game.__scale;
+    for (int i = 0; i < this.__game.canvasHeight; i++) {
+      for (int j = 0; j < this.__game.canvasWidth; j++) {
+        int y = min((i / this.__game.__scale).round(), this.__game.gameHeight - 1) * this.__game.gameWidth;
+        int x = min((j / this.__game.__scale).round(), this.__game.gameWidth - 1);
+        int spos = 4 * ((this.__game.canvasWidth * i) + j);
+        int dpos = 4 * (y + x);
 
-    for (int row = 0; row < this.d.height; row++) {
-      for (int col = 0; col < this.d.width; col++) {
-        var sourcePixel = [
-          this.d.data[(row * this.d.width + col) * 4 + 0],
-          this.d.data[(row * this.d.width + col) * 4 + 1],
-          this.d.data[(row * this.d.width + col) * 4 + 2],
-          this.d.data[(row * this.d.width + col) * 4 + 3]
-        ];
 
-        for (var y = 0; y < scale; y++) {
-          var destRow = row * scale + y;
-          for (var x = 0; x < scale; x++) {
-            var destCol = col * scale + x;
-            for (var i = 0; i < 4; i++) {
-              this.s.data[(destRow * this.s.width + destCol) * 4 + i] =
-              sourcePixel[i];
-            }
-          }
-        }
+        this.s.data[spos] = this.d.data[dpos];
+        this.s.data[spos + 1] = this.d.data[dpos + 1];
+        this.s.data[spos + 2] = this.d.data[dpos + 2];
+        this.s.data[spos + 3] = this.d.data[dpos + 3];
       }
     }
   }

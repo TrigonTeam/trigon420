@@ -4,6 +4,7 @@ import "dart:html";
 import "dart:web_gl";
 import 'dart:collection';
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:vector_math/vector_math.dart';
 
 part "GameCanvas.dart";

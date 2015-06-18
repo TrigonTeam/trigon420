@@ -35,7 +35,7 @@ class Renderer {
     y = y.toInt();
     
     if (x >= 0 && x < this.bitmap.width && y >= 0 && y < this.bitmap.height) {
-      this.bitmap.setPixel(x, y, color == -1 ? this.color : color, true);
+      this.bitmap.setPixel(x, y, color == -1 ? this.color : color, false);
     }
   }
 
