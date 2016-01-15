@@ -6,7 +6,7 @@ import 'dart:math' hide Rectangle;
 import 'dart:collection';
 
 main() {
-  GameCanvas c = new GameCanvas("game", 480, 270, 2);
+  GameCanvas c = new GameCanvas("game", 480, 270, 2, true);
 
   //try {
     c.renderable = new CustomRenderable(c);
@@ -74,10 +74,11 @@ class CustomRenderable extends Renderable {
       this.canvas.renderer.fillRectXy(k.x, k.y + cY, k.x + v, k.y + cY + v);
     });
 
+    /*
     this.canvas.renderer.color = 0xFF000088;
     this.canvas.renderer.fillRectXy(0, 0, 100, 100);
 
     this.canvas.renderer.color = 0xABCDEFCC;
-    this.canvas.renderer.fillRectXy(0, 0, 50, 50);
+    this.canvas.renderer.fillRectXy(0, 0, 50, 50);*/
   }
 }

@@ -12,6 +12,5 @@ part "Input.dart";
 part "Renderable.dart";
 part "Renderer.dart";
 part "Gl.dart";
-part "GlRenderer.dart";
 part "2DRenderer.dart";
 part "Bitmap.dart";

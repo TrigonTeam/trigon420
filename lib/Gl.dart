@@ -3,30 +3,60 @@ part of Trigon420;
 class Gl {
   GameCanvas game;
   RenderingContext gl;
-  GlRenderer glr;
+
   Shader vs, fs;
   Program prog;
   Texture tex;
-  Int32List l;
-  
+
+  Float32List vertList;
+  Int32List indicesList;
+  Uint8List l;
+
+  Buffer vbo, ebo;
   HashMap<String, UniformLocation> uniforms =
-      new HashMap<String, UniformLocation>();
+  new HashMap<String, UniformLocation>();
   HashMap<String, int> attribs = new HashMap<String, int>();
 
   Gl(this.game) {
     this.gl = this.game.context;
-    this.l = new Int32List(this.game.__width * this.game.__height);
+    this.l = new Uint8List(this.game.__width * this.game.__height);
+  }
+
+  void init() {
+    this.gl.viewport(0, 0, this.game.canvasWidth, this.game.canvasHeight);
+
+    this.vertList = new Float32List.fromList([-1.0, -1.0, 0.0, 0.0, // Bottom left
+    1.0, -1.0, 1.0, 0.0, // Bottom right
+    1.0, 1.0, 1.0, 1.0 // Top right
+        -1.0, 1.0, 0.0, 1.0 // Top left
+    ]);
+
+    this.indicesList = new Int32List.fromList([0, 1, 3, 3, 1, 2]);
+
+    this.vbo = this.gl.createBuffer();
+    this.ebo = this.gl.createBuffer();
+
+    this.gl.bindBuffer(ARRAY_BUFFER, this.vbo);
+    this.gl.bufferDataTyped(ARRAY_BUFFER, this.vertList, STATIC_DRAW);
+    this.gl.bindBuffer(ELEMENT_ARRAY_BUFFER, this.ebo);
+    this.gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, this.indicesList, STATIC_DRAW);
+    this.gl.bindBuffer(ARRAY_BUFFER, null);
+    this.gl.bindBuffer(ELEMENT_ARRAY_BUFFER, null);
+
+    this.loadDefaultShader();
   }
 
   List<Shader> loadShaders(String vs, String fs) {
     Shader vso, fso;
-    
+
     vso = this.gl.createShader(VERTEX_SHADER);
     fso = this.gl.createShader(FRAGMENT_SHADER);
     this.gl.shaderSource(vso, vs);
     this.gl.shaderSource(fso, fs);
     this.gl.compileShader(vso);
     this.gl.compileShader(fso);
+    print(this.gl.getShaderInfoLog(vso));
+    print(this.gl.getShaderInfoLog(fso));
 
     return [vso, fso];
   }
@@ -40,31 +70,25 @@ class Gl {
   }
 
   void loadDefaultShader() {
-    var shaders = loadShaders('''
+    var shaders = loadShaders(
+        '''precision mediump float;
 attribute vec2 in_vertex;
-attribute vec4 in_color;
 attribute vec2 in_tex;
-
 varying vec4 color;
 varying vec2 tex;
-
 void main()
 {
     gl_Position = vec4(in_vertex, 0.0, 1.0);
-
-    color = in_color;
+    color = vec4(1.0, 1.0, 1.0, 1.0);
     tex = in_tex;
-}
-    ''', '''
+}''', '''precision mediump float;
 varying vec4 color;
 varying vec2 tex;
 uniform sampler2D sampler;
-
 void main(void)
 {
-    gl_FragColor = color * texture(sampler, tex);
-}
-    ''');
+    gl_FragColor = color * texture2D(sampler, tex);
+}''');
 
     this.vs = shaders[0];
     this.fs = shaders[1];
@@ -95,46 +119,35 @@ void main(void)
     }
   }
 
-  void uniform1f(String name, double d) {
-    this.gl.uniform1f(this.uniforms[name], d);
-  }
-
-  void uniform2f(String name, Vector2 v) {
-    this.gl.uniform2f(this.uniforms[name], v.x, v.y);
-  }
-
-  void bindVertexData(String name, int length, int offs, int floatsPerVertex) {
-    if (attribs.containsKey(name)) {
-      int location = this.attribs[name];
-      gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(location, length, FLOAT, false,
-          floatsPerVertex * GlRenderer.BYTES_PER_FLOAT,
-          offs * GlRenderer.BYTES_PER_FLOAT);
-    }
-  }
-
-  void init() {
-    this.loadDefaultShader();
-    this.gl.viewport(0, 0, this.game.__width, this.game.__height);
-    this.glr = new GlRenderer(this);
-    this.glr.bindShaderAttribs();
-    this.glr.staticDraw = true;
-    this.createTexture();
-  }
-
   void createTexture() {
     this.tex = this.gl.createTexture();
     this.gl.bindTexture(TEXTURE_2D, this.tex);
-    this.gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+    this.gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST_MIPMAP_NEAREST);
     this.gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-    /*this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, NONE);
-    this.gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, NONE);*/
+    this.gl.bindTexture(TEXTURE_2D, null);
   }
   
   void flushTexture() {
-    //l = new Int32List(this.game.__width * this.game.__height);
     l.setAll(0, this.game.__bitmap.pixels);
-    //this.gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, l);
     this.gl.texImage2DTyped(TEXTURE_2D, 0, RGBA, this.game.__width, this.game.__height, 0, RGBA, UNSIGNED_BYTE, this.l);
+  }
+
+  void draw() {
+    this.gl.clear(COLOR_BUFFER_BIT);
+
+    this.gl.bindBuffer(ARRAY_BUFFER, this.vbo);
+    this.gl.vertexAttribPointer(this.attribs["in_vertex"], 2, FLOAT, false, 8, 0);
+    this.gl.enableVertexAttribArray(this.attribs["in_vertex"]);
+    this.gl.vertexAttribPointer(this.attribs["in_tex"], 2, FLOAT, false, 8, 8);
+    this.gl.enableVertexAttribArray(this.attribs["in_tex"]);
+
+    this.gl.useProgram(this.prog);
+    this.gl.activeTexture(TEXTURE0);
+    this.gl.bindTexture(TEXTURE_2D, this.tex);
+    this.gl.uniform1i(this.uniforms["sampler"], 0);
+
+    this.gl.bindBuffer(ELEMENT_ARRAY_BUFFER, this.ebo);
+    this.gl.drawElements(TRIANGLES, 6, UNSIGNED_INT, 0);
+    this.gl.flush();
   }
 }

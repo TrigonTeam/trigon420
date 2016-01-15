@@ -16,6 +16,7 @@ class GameCanvas {
   CanvasRenderingContext2D context2d;
   Gl glu;
   CanvasRenderer cr;
+  bool gl = false;
 
   Function output;
   Renderable renderable;
@@ -36,7 +37,7 @@ class GameCanvas {
 
   int get canvasHeight => this.__heightScaled;
 
-  bool get isWebgl => (this.context != null);
+  bool get isWebgl => this.gl;
 
   set tps(i) {
     this.__tps = i;
@@ -50,7 +51,6 @@ class GameCanvas {
 
     this.__width = width;
     this.__height = height;
-    this.__scale = scale;
     this.__widthScaled = width * scale;
     this.__heightScaled = height * scale;
 
@@ -61,9 +61,13 @@ class GameCanvas {
         this.crash("WebGL error", "NoWebGL4u");
       }
 
+      this.__scale = scale;
+      this.gl = true;
       this.glu = new Gl(this);
+      this.glu.init();
     }
     else {
+      print("Scaling will not be applied");
       this.context2d = this.__canvasHtml.getContext("2d");
       this.cr = new CanvasRenderer(this);
     }
@@ -98,17 +102,17 @@ class GameCanvas {
     while (time - lastTime >= this.__tickTime) {   
       lastTick = w.elapsedMilliseconds;
       this.tick(ticks++);
-      print("Update: ${w.elapsedMilliseconds - lastTick} ms");
+      //print("Update: ${w.elapsedMilliseconds - lastTick} ms");
       lastTime += this.__tickTime;
     }
 
     this.__clearBuffer();
     lastTick = w.elapsedMilliseconds;
     this.renderTick((time - lastTime) / this.__tickTime);
-    print("Render: ${w.elapsedMilliseconds - lastTick} ms");
+    //print("Render: ${w.elapsedMilliseconds - lastTick} ms");
     lastTick = w.elapsedMilliseconds;
     this.__flipBuffer();
-    print("Flip: ${w.elapsedMilliseconds - lastTick} ms");
+    //print("Flip: ${w.elapsedMilliseconds - lastTick} ms");
 
     if(time - this.lastInfo >= 1000000) {
       print("FPS: $frames");
@@ -133,7 +137,12 @@ class GameCanvas {
   }
 
   void __flipBuffer() {
-    this.cr.flip();
+    if(this.gl) {
+      this.glu.flushTexture();
+      this.glu.draw();
+    } else {
+      this.cr.flip();
+    }
   }
 
   void crash(String title, String message) {
